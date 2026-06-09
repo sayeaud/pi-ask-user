@@ -1143,8 +1143,13 @@ class AskComponent extends Container {
 
    private renderOverlayLayout(width: number, innerWidth: number): string[] {
       const maxLines = this.getOverlayMaxRenderLines();
-      if (maxLines <= 1) return [this.renderTopBorder(width)];
-      if (maxLines === 2) return [this.renderTopBorder(width), this.renderBottomBorder(width)];
+      if (maxLines <= 1) return [this.styleOverlayCardLine(this.renderTopBorder(width), width)];
+      if (maxLines === 2) {
+         return [
+            this.styleOverlayCardLine(this.renderTopBorder(width), width),
+            this.styleOverlayCardLine(this.renderBottomBorder(width), width),
+         ];
+      }
 
       const bodyCapacity = Math.max(0, maxLines - 2);
       const promptLines = this.buildPromptLines(innerWidth);
@@ -1386,7 +1391,7 @@ class AskComponent extends Container {
 
    private frameBodyLines(bodyLines: string[], width: number, innerWidth: number): string[] {
       const borderColor = (s: string) => this.theme.fg("accent", s);
-      return [
+      const framedLines = [
          this.renderTopBorder(width),
          ...bodyLines.map((line) => {
             const padded = truncateToWidth(line, innerWidth, "", true);
@@ -1394,6 +1399,12 @@ class AskComponent extends Container {
          }),
          this.renderBottomBorder(width),
       ];
+
+      return framedLines.map((line) => this.styleOverlayCardLine(line, width));
+   }
+
+   private styleOverlayCardLine(line: string, width: number): string {
+      return this.theme.bg("customMessageBg", truncateToWidth(line, width, "", true));
    }
 
    private frameRawLines(rawLines: string[], width: number, innerWidth: number): string[] {
